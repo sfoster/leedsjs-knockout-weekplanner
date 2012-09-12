@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>KnockoutJs: Week Planner</title>
+  <link rel="stylesheet" href="./resources/grid.css" type="text/css" media="screen" charset="utf-8">
+  <style>
+    h1, h2 {
+      margin: 0;
+    }
+    ul, li {
+      margin: 0; padding: 0;
+      list-style-type: none;
+    }
+    .day h2 {
+      font-size: 0.9em;
+    }
+    body {
+      background: url('./resources/bg.jpg');
+      color: #555555;
+      font-family: 'Lucida Sans Unicode','Lucida Grande',Tahoma,sans-serif;
+    }
+    #planner, h1 {
+      width: 90%;
+      margin: 10px auto;
+      text-align: center;
+    }
+    .day, .tasks {
+      text-align: left;
+      border: 1px solid #999;
+      height: 300px;
+      margin: 1px;
+      padding: 6px;
+      border-radius: 4px;
+    }
+    .day.weekend {
+      background-color: #aaa;
+    }
+  </style>
+</head>
+<body>
+<h1>
+  Week Planner with KnockoutJs 
+  (test value: <span data-bind="text: testValue"></span>)
+</h1>
+
+<div class="row" id="planner">
+  <div class="col col-1of6">
+    <section class="tasks">
+      <h2>Tasks <span data-bind="text: taskCount"></span></h2>
+      <ul data-bind="foreach: tasks">
+        <li><span data-bind="text: name"></span></li>
+      </ul>
+      <input data-bind="value: newTaskTitle" placeholder="Enter task here" type="text" style="width: 100%">
+      <button data-bind="click: addTask">Add</button>
+    </section>
+  </div>
+  <div class="col col-5of6">
+    <div class="row" data-bind="foreach: days">
+      <div class="col col-1of8">
+        <section class="day" data-bind="css: {  weekend: date.getDay() == 0 || date.getDay() > 5 }">
+          <h2 data-bind="text: date.name"></h2>
+        </section>
+      </div>
+    </div>
+  </div>
+</div>
+  
+<script src="./js/require.js"></script>  
+<script>
+  require({
+    baseUrl: 'js',
+    packages: [
+      // package mappings
+      { name: 'date',   location: './date',  main: 'main' }
+    ]
+  }, ['knockout', 'date'], function(ko, date){
+    console.log("Ready, with dependencies: ", ko, date);
+    
+    var now = new Date(), 
+        firstDay = now,
+        monthDays = date.getDaysInMonth(now), 
+        // we'll call Monday the first day in the week
+        firstDay =  date.add( now, 'day', 1+(-1 * firstDay.getDay())), 
+        week = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"].map(function(name, i){
+          var day = date.add(firstDay, 'day', i);
+          day.name = name;
+          return day;
+        })
+    ;
+    
+    days = week.map(function(date){
+      return {
+        date: date,
+        tasks: []
+      }
+    })
+    
+    Task = function(name) {
+      this.name = name;
+    }
+    viewModel = {
+      days: ko.observableArray(days),
+      tasks: ko.observableArray([]),
+      testValue: ko.observable("The test value"),
+      newTaskTitle: ko.observable(""),
+      addTask: function(bindingContext, elm) {
+        viewModel.tasks.push(new Task(viewModel.newTaskTitle()));
+        viewModel.newTaskTitle("");
+      },
+    };
+
+    viewModel.taskCount = ko.computed(function(){
+     return viewModel.tasks().length; 
+    });
+
+    ko.applyBindings(viewModel);
+    
+  });
+  
+</script>  
+</body>
+</html>

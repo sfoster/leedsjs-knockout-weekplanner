@@ -1,0 +1,8 @@
+{
+  "volo": {
+    "dependencies": {
+      "require": "github:jrburke/requirejs/2.0.6",
+      "knockout": "http://cloud.github.com/downloads/SteveSanderson/knockout/knockout-2.1.0.debug.js"
+    }
+  }
+}
